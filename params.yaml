@@ -1,0 +1,40 @@
+seed: 42
+
+data:
+  source_url: https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv
+  raw_path: data/raw/telco_churn.csv
+  processed_dir: data/processed
+  target: Churn
+  id_column: customerID
+  test_size: 0.15
+  val_size: 0.15
+
+validation:
+  max_missing_fraction: 0.01   # fail if any column has more missing values than this
+
+mlflow:
+  tracking_uri: sqlite:///mlflow.db   # overridden by the MLFLOW_TRACKING_URI env var
+  experiment_name: churnops
+  registered_model_name: churnops-churn-classifier
+
+baseline:            # LightGBM, near-default settings on purpose
+  n_estimators: 300
+  learning_rate: 0.05
+  num_leaves: 31
+
+champion:            # CatBoost tuned with Optuna
+  n_trials: 30
+  timeout_seconds: 1200
+  max_iterations: 2000
+  early_stopping_rounds: 100
+  search_space:
+    depth: [4, 10]
+    learning_rate: [0.01, 0.2]
+    l2_leaf_reg: [1.0, 10.0]
+    bagging_temperature: [0.0, 1.0]
+    random_strength: [0.0, 2.0]
+    border_count: [32, 255]
+
+selection:
+  primary_metric: f1      # pick the model with the best validation F1...
+  min_recall: 0.70        # ...among models that reach this recall on the churn class

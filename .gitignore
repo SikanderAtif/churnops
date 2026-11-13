@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# MLflow local store (move to a remote tracking server in Phase 4)
+mlruns/
+mlartifacts/
+mlflow.db
+
+# CatBoost scratch files
+catboost_info/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

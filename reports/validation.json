@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "errors": [],
+  "warnings": [
+    "TotalCharges: 11 missing values (will be handled in preprocessing)"
+  ],
+  "n_rows": 7043,
+  "n_columns": 21,
+  "churn_rate": 0.2654,
+  "missing_values": {
+    "TotalCharges": 11
+  }
+}

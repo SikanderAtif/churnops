@@ -1,0 +1,90 @@
+stages:
+  validate:
+    cmd: python -m src.data.validate
+    deps:
+      - data/raw/telco_churn.csv
+      - src/data/validate.py
+      - src/data/schema.py
+    params:
+      - validation
+    outs:
+      - reports/validation.json:
+          cache: false
+
+  preprocess:
+    cmd: python -m src.data.preprocess
+    deps:
+      - data/raw/telco_churn.csv
+      - reports/validation.json
+      - src/data/preprocess.py
+      - src/data/schema.py
+    params:
+      - seed
+      - data
+    outs:
+      - data/processed
+
+  train_baseline:
+    cmd: python -m src.models.train_baseline
+    deps:
+      - data/processed
+      - src/models/train_baseline.py
+      - src/features.py
+      - src/metrics.py
+    params:
+      - seed
+      - baseline
+      - selection
+    outs:
+      - models/baseline
+    metrics:
+      - metrics/baseline.json:
+          cache: false
+
+  tune_champion:
+    cmd: python -m src.models.tune_champion
+    deps:
+      - data/processed
+      - src/models/tune_champion.py
+      - src/features.py
+      - src/metrics.py
+    params:
+      - seed
+      - champion
+      - selection
+    outs:
+      - models/champion
+    metrics:
+      - metrics/champion.json:
+          cache: false
+
+  evaluate:
+    cmd: python -m src.models.evaluate
+    deps:
+      - data/processed
+      - models/baseline
+      - models/champion
+      - metrics/baseline.json
+      - metrics/champion.json
+      - src/models/evaluate.py
+    params:
+      - selection
+    metrics:
+      - metrics/test.json:
+          cache: false
+    outs:
+      - metrics/evaluation.json:
+          cache: false
+      - reports/model_comparison.md:
+          cache: false
+
+  register:
+    cmd: python -m src.models.register
+    deps:
+      - metrics/evaluation.json
+      - src/models/register.py
+    params:
+      - mlflow
+    outs:
+      - reports/registry.json:
+          cache: false

@@ -1,0 +1,35 @@
+{
+  "registered_model": "churnops-churn-classifier",
+  "versions": {
+    "baseline": {
+      "version": 1,
+      "alias": "challenger",
+      "framework": "lightgbm",
+      "trained_as": "baseline",
+      "alias_at_registration": "challenger",
+      "decision_threshold": "0.43",
+      "data_version": "3b0bfab28a8101b4e4fdd08025a5c235",
+      "git_commit": "unknown",
+      "val_f1": "0.5976",
+      "val_recall": "0.7082",
+      "test_f1": "0.6023",
+      "test_recall": "0.7464",
+      "test_roc_auc": "0.8344"
+    },
+    "champion": {
+      "version": 2,
+      "alias": "champion",
+      "framework": "catboost",
+      "trained_as": "champion",
+      "alias_at_registration": "champion",
+      "decision_threshold": "0.57",
+      "data_version": "3b0bfab28a8101b4e4fdd08025a5c235",
+      "git_commit": "unknown",
+      "val_f1": "0.6168",
+      "val_recall": "0.7046",
+      "test_f1": "0.6424",
+      "test_recall": "0.7571",
+      "test_roc_auc": "0.8467"
+    }
+  }
+}

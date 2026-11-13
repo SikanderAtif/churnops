@@ -1,0 +1,233 @@
+schema: '2.0'
+stages:
+  validate:
+    cmd: python -m src.data.validate
+    deps:
+    - path: data/raw/telco_churn.csv
+      hash: md5
+      md5: 3b0bfab28a8101b4e4fdd08025a5c235
+      size: 970457
+    - path: src/data/schema.py
+      hash: md5
+      md5: 05f4c9caa972e42b66a15f3aab70c47f
+      size: 1363
+    - path: src/data/validate.py
+      hash: md5
+      md5: d236d79a23cbae52e5875857f1eb9ac0
+      size: 3317
+    params:
+      params.yaml:
+        validation:
+          max_missing_fraction: 0.01
+    outs:
+    - path: reports/validation.json
+      hash: md5
+      md5: bccfcfd1ec38f2874bb4ea5c543d4bf5
+      size: 241
+  preprocess:
+    cmd: python -m src.data.preprocess
+    deps:
+    - path: data/raw/telco_churn.csv
+      hash: md5
+      md5: 3b0bfab28a8101b4e4fdd08025a5c235
+      size: 970457
+    - path: reports/validation.json
+      hash: md5
+      md5: bccfcfd1ec38f2874bb4ea5c543d4bf5
+      size: 241
+    - path: src/data/preprocess.py
+      hash: md5
+      md5: 09392ff275a2527fc2544b3da0dcbc45
+      size: 4331
+    - path: src/data/schema.py
+      hash: md5
+      md5: 05f4c9caa972e42b66a15f3aab70c47f
+      size: 1363
+    params:
+      params.yaml:
+        data:
+          source_url: 
+            https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv
+          raw_path: data/raw/telco_churn.csv
+          processed_dir: data/processed
+          target: Churn
+          id_column: customerID
+          test_size: 0.15
+          val_size: 0.15
+        seed: 42
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 1712581f335ebcace20138cd92d57270.dir
+      size: 252997
+      nfiles: 5
+  train_baseline:
+    cmd: python -m src.models.train_baseline
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 1712581f335ebcace20138cd92d57270.dir
+      size: 252997
+      nfiles: 5
+    - path: src/features.py
+      hash: md5
+      md5: cc87df3da75402f2f05a8bf29cdeab21
+      size: 1266
+    - path: src/metrics.py
+      hash: md5
+      md5: 3a6f771a1f275ec46703f0a7afbd0d26
+      size: 1882
+    - path: src/models/train_baseline.py
+      hash: md5
+      md5: f20dd96962b97d185f82addd570cb4de
+      size: 2962
+    params:
+      params.yaml:
+        baseline:
+          n_estimators: 300
+          learning_rate: 0.05
+          num_leaves: 31
+        seed: 42
+        selection:
+          primary_metric: f1
+          min_recall: 0.7
+    outs:
+    - path: metrics/baseline.json
+      hash: md5
+      md5: 2f85a00c55d935c89f925123b3cfe85e
+      size: 307
+    - path: models/baseline
+      hash: md5
+      md5: 5defd72f7282389fbb987085e36127a5.dir
+      size: 1009051
+      nfiles: 3
+  tune_champion:
+    cmd: python -m src.models.tune_champion
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 1712581f335ebcace20138cd92d57270.dir
+      size: 252997
+      nfiles: 5
+    - path: src/features.py
+      hash: md5
+      md5: cc87df3da75402f2f05a8bf29cdeab21
+      size: 1266
+    - path: src/metrics.py
+      hash: md5
+      md5: 3a6f771a1f275ec46703f0a7afbd0d26
+      size: 1882
+    - path: src/models/tune_champion.py
+      hash: md5
+      md5: 045dfcf6f754dba6938f4e5c5b16324b
+      size: 5572
+    params:
+      params.yaml:
+        champion:
+          n_trials: 30
+          timeout_seconds: 1200
+          max_iterations: 2000
+          early_stopping_rounds: 100
+          search_space:
+            depth:
+            - 4
+            - 10
+            learning_rate:
+            - 0.01
+            - 0.2
+            l2_leaf_reg:
+            - 1.0
+            - 10.0
+            bagging_temperature:
+            - 0.0
+            - 1.0
+            random_strength:
+            - 0.0
+            - 2.0
+            border_count:
+            - 32
+            - 255
+        seed: 42
+        selection:
+          primary_metric: f1
+          min_recall: 0.7
+    outs:
+    - path: metrics/champion.json
+      hash: md5
+      md5: 3fb48d2d79c2a297eaf2e716d0ffab39
+      size: 335
+    - path: models/champion
+      hash: md5
+      md5: 37e31d5fc0fb590593df699cd694e1f7.dir
+      size: 52014
+      nfiles: 4
+  evaluate:
+    cmd: python -m src.models.evaluate
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 1712581f335ebcace20138cd92d57270.dir
+      size: 252997
+      nfiles: 5
+    - path: metrics/baseline.json
+      hash: md5
+      md5: 2f85a00c55d935c89f925123b3cfe85e
+      size: 307
+    - path: metrics/champion.json
+      hash: md5
+      md5: 3fb48d2d79c2a297eaf2e716d0ffab39
+      size: 335
+    - path: models/baseline
+      hash: md5
+      md5: 5defd72f7282389fbb987085e36127a5.dir
+      size: 1009051
+      nfiles: 3
+    - path: models/champion
+      hash: md5
+      md5: 37e31d5fc0fb590593df699cd694e1f7.dir
+      size: 52014
+      nfiles: 4
+    - path: src/models/evaluate.py
+      hash: md5
+      md5: d6c8b7a449ebe3d17f1308eb0d0da811
+      size: 3634
+    params:
+      params.yaml:
+        selection:
+          primary_metric: f1
+          min_recall: 0.7
+    outs:
+    - path: metrics/evaluation.json
+      hash: md5
+      md5: 5cc9fad92dd00ccb932471e05431c4a4
+      size: 1828
+    - path: metrics/test.json
+      hash: md5
+      md5: adce324f72f57b7798d5ad6925e4d036
+      size: 462
+    - path: reports/model_comparison.md
+      hash: md5
+      md5: cba992061162a67ba0a2cd4594e99c0a
+      size: 566
+  register:
+    cmd: python -m src.models.register
+    deps:
+    - path: metrics/evaluation.json
+      hash: md5
+      md5: 5cc9fad92dd00ccb932471e05431c4a4
+      size: 1828
+    - path: src/models/register.py
+      hash: md5
+      md5: cfef938ba6b07b73df1930a9d91302d2
+      size: 2246
+    params:
+      params.yaml:
+        mlflow:
+          tracking_uri: sqlite:///mlflow.db
+          experiment_name: churnops
+          registered_model_name: churnops-churn-classifier
+    outs:
+    - path: reports/registry.json
+      hash: md5
+      md5: d20d362f517d01d8c83c82c0d72fec59
+      size: 973

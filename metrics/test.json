@@ -1,0 +1,12 @@
+{
+  "baseline_test_f1": 0.6023054755043228,
+  "baseline_test_recall": 0.7464285714285714,
+  "baseline_test_precision": 0.5048309178743962,
+  "baseline_test_roc_auc": 0.8344249862107005,
+  "baseline_test_pr_auc": 0.6429665210590328,
+  "champion_test_f1": 0.6424242424242425,
+  "champion_test_recall": 0.7571428571428571,
+  "champion_test_precision": 0.5578947368421052,
+  "champion_test_roc_auc": 0.8466859716859717,
+  "champion_test_pr_auc": 0.6589427758506183
+}

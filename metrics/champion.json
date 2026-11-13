@@ -1,0 +1,14 @@
+{
+  "threshold": 0.57,
+  "n_trials_completed": 30,
+  "val_f1": 0.616822429906542,
+  "val_recall": 0.7046263345195729,
+  "val_precision": 0.5484764542936288,
+  "val_accuracy": 0.7672658467360454,
+  "val_roc_auc": 0.8287366548042705,
+  "val_pr_auc": 0.6389995408314687,
+  "val_tp": 198,
+  "val_fp": 163,
+  "val_tn": 613,
+  "val_fn": 83
+}
